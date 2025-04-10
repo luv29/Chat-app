@@ -12,9 +12,9 @@ import { Server as SocketIOServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { fileURLToPath } from "url";
 import YAML from "yaml";
-import morganMiddleware from "./logger/morgan.logger.js";
-import { initializeSocketIO } from "./socket/index.js";
-import { ApiError } from "./utils/ApiError.js";
+import morganMiddleware from "./logger/morgan.logger";
+import { initializeSocketIO } from "./socket";
+import { ApiError } from "./utils/ApiError";
 
 const __filename: string = fileURLToPath(import.meta.url);
 const __dirname: string = path.dirname(__filename);
@@ -92,9 +92,9 @@ app.use(passport.session()); // persistent login sessions
 app.use(morganMiddleware);
 
 // * App routes
-import userRouter from "./routes/apps/auth/user.routes.js";
-import chatRouter from "./routes/apps/chat-app/chat.routes.js";
-import messageRouter from "./routes/apps/chat-app/message.routes.js";
+import userRouter from "./routes/user.routes";
+import chatRouter from "./routes/chat.routes";
+import messageRouter from "./routes/message.routes";
 
 // * App apis
 app.use("/api/v1/users", userRouter);
@@ -117,7 +117,7 @@ app.use(
 );
 
 // common error handling middleware
-import { errorHandler } from "./middlewares/error.middlewares.js";
+import { errorHandler } from "./middlewares/error.middlewares";
 app.use(errorHandler);
 
 export { httpServer };
