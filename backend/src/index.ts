@@ -1,17 +1,36 @@
-import express from "express";
 import dotenv from "dotenv";
+import { httpServer } from "./app";
+import connectDB from "./db/index";
+import logger from "./logger/winston.logger";
 
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(express.json());
-
-app.get("/", (_req, res) => {
-  res.send("Hello from TS + ES Modules!");
+dotenv.config({
+  path: "./.env",
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+const majorNodeVersion: number = parseInt(process.versions.node.split(".")[0], 10);
+
+const startServer = () => {
+  const port = process.env.PORT || 8080;
+  httpServer.listen(port, () => {
+    logger.info(`⚙️ Server is running on port: ${port}`);
+  });
+};
+
+if (majorNodeVersion >= 14) {
+  (async () => {
+    try {
+      await connectDB();
+      startServer();
+    } catch (err) {
+      logger.error("Mongo db connect error: ", err);
+    }
+  })();
+} else {
+  connectDB()
+    .then(() => {
+      startServer();
+    })
+    .catch((err: unknown) => {
+      logger.error("Mongo db connect error: ", err);
+    });
+}
