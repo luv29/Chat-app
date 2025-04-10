@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { httpServer } from "./app";
-import connectDB from "./db/index";
-import logger from "./logger/winston.logger";
+import connectDB from "./db";
+import logger from "./logger/morgan.logger";
 
 dotenv.config({
   path: "./.env",
