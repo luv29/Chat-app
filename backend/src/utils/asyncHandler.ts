@@ -1,4 +1,10 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
+import { IUser } from "../models/user.models";
+
+// Extend the Express Request interface to include 'user'
+interface AuthenticatedRequest extends Request {
+  user?: IUser;
+}
 
 /**
  * Wraps async route handlers to catch errors and pass them to Express error middleware.
@@ -7,7 +13,7 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
  * @returns A new function with error handling logic.
  */
 const asyncHandler =
-  (requestHandler: (req: Request, res: Response, next: NextFunction) => Promise<any>): RequestHandler =>
+  (requestHandler: (req: Request | AuthenticatedRequest, res: Response, next: NextFunction) => Promise<any>): RequestHandler =>
   (req, res, next) => {
     Promise.resolve(requestHandler(req, res, next)).catch(next);
   };
