@@ -28,10 +28,10 @@ import {
   userLoginValidator,
   userRegisterValidator,
   userResetForgottenPasswordValidator,
-} from "../../../validators/apps/auth/user.validators";
-import { validate } from "../../../validators/validate";
-import { upload } from "../../../middlewares/multer.middlewares";
-import { mongoIdPathVariableValidator } from "../../../validators/common/mongodb.validators";
+} from "../validators/user.validators";
+import { validate } from "../validators/validate";
+import { upload } from "../middlewares/multer.middlewares";
+import { mongoIdPathVariableValidator } from "../validators/mongodb.validators";
 
 const router = Router();
 

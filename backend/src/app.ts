@@ -93,13 +93,13 @@ app.use(morganMiddleware);
 
 // * App routes
 import userRouter from "./routes/user.routes";
-import chatRouter from "./routes/chat.routes";
-import messageRouter from "./routes/message.routes";
+// import chatRouter from "./routes/chat.routes";
+// import messageRouter from "./routes/message.routes";
 
 // * App apis
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/chat-app/chats", chatRouter);
-app.use("/api/v1/chat-app/messages", messageRouter);
+// app.use("/api/v1/chat-app/chats", chatRouter);
+// app.use("/api/v1/chat-app/messages", messageRouter);
 
 initializeSocketIO(io);
 
