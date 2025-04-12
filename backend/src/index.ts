@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
-import { httpServer } from "./app";
-import connectDB from "./db";
-import logger from "./logger/winston.logger";
-
 dotenv.config({
   path: "./.env",
 });
+
+import { httpServer } from "./app";
+import connectDB from "./db";
+import logger from "./logger/winston.logger";
 
 const majorNodeVersion: number = parseInt(process.versions.node.split(".")[0], 10);
 

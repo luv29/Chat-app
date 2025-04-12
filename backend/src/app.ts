@@ -16,14 +16,14 @@ import morganMiddleware from "./logger/morgan.logger";
 import { initializeSocketIO } from "./socket";
 import { ApiError } from "./utils/ApiError";
 
-const __filename: string = fileURLToPath(import.meta.url);
-const __dirname: string = path.dirname(__filename);
+// const __filename: string = fileURLToPath(import.meta.url);
+// const __dirname: string = path.dirname(__filename);
 
 const file: string = fs.readFileSync(path.resolve(__dirname, "./swagger.yaml"), "utf8");
 const swaggerDocument = YAML.parse(
   file?.replace(
     "- url: ${{server}}",
-    `- url: http://localhost:8080/api/v1`
+    "- url: http://localhost:8080/api/v1"
   )
 );
 
