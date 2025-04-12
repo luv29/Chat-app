@@ -43,7 +43,7 @@ export interface IUser extends Document {
     generateTemporaryToken(): {
         unHashedToken: string;
         hashedToken: string;
-        tokenExpiry: number;
+        tokenExpiry: Date;
     };
 }
 
@@ -153,7 +153,7 @@ userSchema.methods.generateRefreshToken = function (): string {
 userSchema.methods.generateTemporaryToken = function (): {
     unHashedToken: string;
     hashedToken: string;
-    tokenExpiry: number;
+    tokenExpiry: Date;
 } {
     // This token should be client facing
     // for example: for email verification unHashedToken should go into the user's mail
@@ -166,7 +166,7 @@ userSchema.methods.generateTemporaryToken = function (): {
         .digest("hex");
 
     // This is the expiry time for the token (20 minutes)
-    const tokenExpiry = Date.now() + USER_TEMPORARY_TOKEN_EXPIRY;
+    const tokenExpiry: Date = new Date(Date.now() + USER_TEMPORARY_TOKEN_EXPIRY);
 
     return { unHashedToken, hashedToken, tokenExpiry };
 };

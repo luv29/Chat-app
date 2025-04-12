@@ -1,7 +1,7 @@
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { UserLoginType, UserRolesEnum } from "../constants";
-import { User } from "../models/user.models";
+import { User, IUser } from "../models/user.models";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
@@ -16,9 +16,9 @@ import {
     sendEmail,
 } from "../utils/mail";
 
-const generateAccessAndRefreshTokens = async (userId) => {
+const generateAccessAndRefreshTokens = async (userId: string) => {
   try {
-    const user = await User.findById(userId);
+    const user= await User.findById(userId) as IUser;
 
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
@@ -46,6 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (existedUser) {
     throw new ApiError(409, "User with email or username already exists", []);
   }
+
   const user = await User.create({
     email,
     password,
@@ -59,8 +60,7 @@ const registerUser = asyncHandler(async (req, res) => {
    * hashedToken: we will keep record of hashedToken to validate the unHashedToken in verify email controller
    * tokenExpiry: Expiry to be checked before validating the incoming token
    */
-  const { unHashedToken, hashedToken, tokenExpiry } =
-    user.generateTemporaryToken();
+  const { unHashedToken, hashedToken, tokenExpiry } = user.generateTemporaryToken();
 
   /**
    * assign hashedToken and tokenExpiry in DB till user clicks on email verification link
@@ -136,7 +136,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-    user._id
+    user._id.toString()
   );
 
   // get the user document ignoring the password and refreshToken field
@@ -165,7 +165,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
-    req.user._id,
+    (req.user as IUser)?._id,
     {
       $set: {
         refreshToken: '',
@@ -229,7 +229,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 // In case he did not get the email or the email verification token is expired
 // he will be able to resend the token while he is logged in
 const resendEmailVerification = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user?._id);
+  const user = await User.findById((req.user as IUser)?._id);
 
   if (!user) {
     throw new ApiError(404, "User does not exists", []);
@@ -275,7 +275,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    const user = await User.findById(decodedToken?._id);
+    const user = await User.findById((decodedToken as JwtPayload)?._id);
     if (!user) {
       throw new ApiError(401, "Invalid refresh token");
     }
@@ -293,7 +293,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     };
 
     const { accessToken, refreshToken: newRefreshToken } =
-      await generateAccessAndRefreshTokens(user._id);
+      await generateAccessAndRefreshTokens(user._id.toString());
 
     // Update the user's refresh token in the database
     user.refreshToken = newRefreshToken;
@@ -311,7 +311,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    throw new ApiError(401, error?.message || "Invalid refresh token");
+    throw new ApiError(401, (error as Error)?.message || "Invalid refresh token");
   }
 });
 
@@ -396,7 +396,7 @@ const resetForgottenPassword = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user?._id);
+  const user = await User.findById((req.user as IUser)?._id) as IUser;
 
   // check the old password
   const isPasswordValid = await user.isPasswordCorrect(oldPassword);
@@ -438,14 +438,14 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const handleSocialLogin = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user?._id);
+  const user = await User.findById((req.user as IUser)?._id);
 
   if (!user) {
     throw new ApiError(404, "User does not exist");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
-    user._id
+    user._id.toHexString()
   );
 
   const options = {
@@ -473,10 +473,10 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatarUrl = getStaticFilePath(req, req.file?.filename);
   const avatarLocalPath = getLocalPath(req.file?.filename);
 
-  const user = await User.findById(req.user._id);
+  const user = await User.findById((req.user as IUser)?._id) as IUser;
 
   let updatedUser = await User.findByIdAndUpdate(
-    req.user._id,
+    (req.user as IUser)?._id,
 
     {
       $set: {
