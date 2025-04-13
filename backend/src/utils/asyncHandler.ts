@@ -4,6 +4,9 @@ import { IUser } from "../models/user.models";
 // Extend the Express Request interface to include 'user'
 interface AuthenticatedRequest extends Request {
   user?: IUser;
+  files?: {
+    attachments?: Express.Multer.File[];
+  };
 }
 
 /**

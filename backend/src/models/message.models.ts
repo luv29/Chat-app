@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
-interface IAttachment {
+export interface IAttachment {
     url: string;
     localPath: string;
 }
